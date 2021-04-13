@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 _ARCH=""
+_HOST=""
 function usage() {
     echo
     echo "usage: $1 <-a arch to build: android-arm, android-arm64, ...>"
@@ -18,6 +19,18 @@ while getopts "a:" arg; do
 
     esac
 done
+
+# check running os
+case "$(uname -s)" in
+   Darwin)
+     _HOST=darwin-x86_64
+     ;;
+
+   Linux)
+     _HOST=linux-x86_64
+     echo 'Linux'
+     ;;
+esac
 
 # android ndk must be installed somewhere
 if [ -z "$ANDROID_NDK_ROOT" ]; then
@@ -45,7 +58,7 @@ make clean
 rm -rf "../build/openssl-$_ARCH"
 mkdir -p "../build/openssl-$_ARCH"
 _prefix=$(realpath "../build/openssl-$_ARCH")
-PATH=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin:$ANDROID_NDK_ROOT/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin:$PATH
+PATH="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/$_HOST/bin:$ANDROID_NDK_ROOT/toolchains/arm-linux-androideabi-4.9/prebuilt/$_HOST/bin:$PATH"
 ./Configure "$_ARCH" -D__ANDROID_API__=22 --prefix="$_prefix"
 if [ "$?" -ne 0 ]; then
     cd "$_PWD"

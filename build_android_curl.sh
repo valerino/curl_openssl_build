@@ -2,6 +2,7 @@
 _ARCH=""
 _ANDROID_VERSION=23
 _SSLPATH=""
+_HOST=""
 
 function usage() {
     echo
@@ -25,6 +26,18 @@ while getopts "a:o:" arg; do
 
     esac
 done
+
+# check running os
+case "$(uname -s)" in
+   Darwin)
+     _HOST=darwin-x86_64
+     ;;
+
+   Linux)
+     _HOST=linux-x86_64
+     echo 'Linux'
+     ;;
+esac
 
 # android ndk must be installed somewhere
 if [ -z "$ANDROID_NDK_ROOT" ]; then
@@ -73,8 +86,7 @@ else
 fi
 
 export NDK="$ANDROID_NDK_ROOT"
-export HOST_TAG=linux-x86_64 # use "darwin-x86_64" on mac
-export TOOLCHAIN="$NDK/toolchains/llvm/prebuilt/$HOST_TAG"
+export TOOLCHAIN="$NDK/toolchains/llvm/prebuilt/$_HOST"
 export AR="$TOOLCHAIN/bin/$_target-ar"
 export AS="$TOOLCHAIN/bin/$_target-as"
 export CC="$TOOLCHAIN/bin/$_target2$_ANDROID_VERSION-clang"
